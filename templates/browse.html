@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Music App - Browse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/static/theme.css">
     <link rel="stylesheet" href="/static/browse.css">
     <link rel="stylesheet" href="/static/player-bar.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -36,22 +38,22 @@
     </div>
     <div class="playback-controls">
         <div class="buttons">
-            <div class="small-action-btn">
+            <div class="small-action-btn" id="skip-back-btn">
                 <i class="ph-fill ph-skip-back"></i>
             </div>
-            <div class="small-action-btn">
-                <i class="ph-fill ph-pause"></i>
+            <div class="small-action-btn" id="play-pause-btn">
+                <i class="ph-fill ph-pause current-play-pause-icon"></i>
             </div>
             <div class="small-action-btn">
                 <i class="ph-fill ph-skip-forward"></i>
             </div>
         </div>
         <div class="seek-bar">
-            <p class="timestamp">-00:00</p>
-            <div class="progress-bar">
+            <p class="timestamp" id="progress-time-left">-00:00</p>
+            <div class="progress-bar" id="seek-bar">
                 <div id="progress-bar"></div>
             </div>
-            <p class="timestamp">00:00</p>
+            <p class="timestamp" id="progress-total-time">00:00</p>
         </div>
     </div>
     <div class="more">

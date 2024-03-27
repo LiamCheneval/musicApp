@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, make_response, abort
 from data_manager import *
 import json
 
@@ -7,11 +7,16 @@ app = Flask(__name__, static_folder='./static')
 
 @app.route('/')
 def hello_world():
-    return '<a href="/browse">Browse...</a>'
+    return render_template('index.html')
 
 
 @app.route('/browse')
 def browser_page():
+    token = request.cookies.get('token')
+    is_token_valid = check_token(token)
+
+    if not is_token_valid:
+        return redirect("/")
     return render_template("browse.html")
 
 
@@ -29,6 +34,31 @@ def api_song():
 
     song = get_music_by_uid(song_uid)
     return json.dumps(song)
+
+
+@app.route('/api/login', methods=["POST"])
+def handle_login_api():
+    username = request.values.get('username')
+    password = request.values.get('password')
+
+    if not check_password(username, password):
+        print("Invalid.")
+        return redirect("/?error=invalid_login")
+
+    token = get_new_token_for_username(username)
+
+    response = make_response(redirect('/browse'))
+    response.set_cookie('token', token, max_age=600)
+    return response
+
+
+@app.route('/api/me', methods=["GET"])
+def handle_me_api():
+    token = request.values.get('token')
+    if not check_token(token):
+        return abort(401, description="A valid token is required.")
+    profile = get_user_from_token(token)[['username', 'token']].to_json(orient='records', lines=True)
+    return profile
 
 
 @app.errorhandler(404)
