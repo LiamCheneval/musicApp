@@ -17,7 +17,6 @@ def get_songs() -> list:
         del music['artist_uid']
         music.update({"album": get_album_by_uid(music['album_uid']).to_dict('records')[0]})
         del music['album_uid']
-    print(type(musics))
     return musics
 
 
