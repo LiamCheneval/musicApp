@@ -13,11 +13,13 @@ def get_songs() -> list:
     """
     musics = musics_df.to_dict('records')
     for music in musics:
-        music.update({"artist": get_artist_by_uid(music['artist_uid']).to_dict('records')[0]})
-        del music['artist_uid']
-        music.update({"album": get_album_by_uid(music['album_uid']).to_dict('records')[0]})
-        del music['album_uid']
+        update_music_meta(music)
     return musics
+
+
+def do_music_exist(song_uid: str) -> bool:
+    music = musics_df.loc[musics_df['uid'] == song_uid]
+    return music is not None
 
 
 def get_artist_by_uid(uid: str) -> pd.DataFrame:
@@ -38,10 +40,19 @@ def get_album_by_uid(uid: str) -> pd.DataFrame:
     return albums_df.loc[albums_df["uid"] == uid]
 
 
-def get_music_by_uid(uid: str) -> pd.DataFrame:
+def get_music_by_uid(uid: str) -> dict:
     """
     Returns the music by uid from the csv file
     :param uid: The uid of the music
     :return: A panda Dataframe containing the music information
     """
-    return musics_df.loc[musics_df["uid"] == uid]
+    music = musics_df.loc[musics_df["uid"] == uid].to_dict("records")[0]
+    update_music_meta(music)
+    return music
+
+
+def update_music_meta(music: dict) -> None:
+    music.update({"artist": get_artist_by_uid(music['artist_uid']).to_dict('records')[0]})
+    del music['artist_uid']
+    music.update({"album": get_album_by_uid(music['album_uid']).to_dict('records')[0]})
+    del music['album_uid']

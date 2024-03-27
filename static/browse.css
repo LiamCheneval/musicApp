@@ -4,14 +4,20 @@
     padding: 0;
 }
 body{
-    margin: 16px;
     display: flex;
     flex-direction: column;
-    gap: 32px;
     font-family: sans-serif;
+
+    position: fixed;
+    inset: 0;
+}
+main{
+    flex: 1 0 0;
+    overflow-y: scroll;
+    padding: 16px;
 }
 #songs{
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     gap: 4px;
     width: 100%;

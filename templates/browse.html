@@ -4,20 +4,62 @@
     <meta charset="UTF-8">
     <title>Music App - Browse</title>
     <link rel="stylesheet" href="/static/browse.css">
+    <link rel="stylesheet" href="/static/player-bar.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
+<main>
     <h1>Music App</h1>
     <h2>Songs</h2>
     <p style="text-decoration: underline">These songs are fetched from <a href="/api/songs">'/api/songs'</a>.</p>
     <div id="songs">
         <!-- Fetched songs appear here! !-->
     </div>
-    <div class="controls">
-        <p id="play-pause-toggle">Play/Pause</p>
+</main>
+<div class="player-bar" style="display: none">
+    <div class="metadata">
+        <div class="current-song">
+            <img src="" alt="cover.png" id="current-song-cover">
+            <div class="titles">
+                <p class="track-title" id="current-song-title">Better Be Alive</p>
+                <p class="track-artist" id="current-song-artist">IGO</p>
+            </div>
+        </div>
+        <div class="song-actions">
+            <div class="small-action-btn">
+                <i class="ph ph-heart"></i>
+            </div>
+            <div class="small-action-btn">
+                <i class="ph ph-dots-three"></i>
+            </div>
+        </div>
     </div>
+    <div class="playback-controls">
+        <div class="buttons">
+            <div class="small-action-btn">
+                <i class="ph-fill ph-skip-back"></i>
+            </div>
+            <div class="small-action-btn">
+                <i class="ph-fill ph-pause"></i>
+            </div>
+            <div class="small-action-btn">
+                <i class="ph-fill ph-skip-forward"></i>
+            </div>
+        </div>
+        <div class="seek-bar">
+            <p class="timestamp">-00:00</p>
+            <div class="progress-bar">
+                <div id="progress-bar"></div>
+            </div>
+            <p class="timestamp">00:00</p>
+        </div>
+    </div>
+    <div class="more">
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/static/browse.js"></script>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/static/browse.js"></script>
 </body>
 </html>
