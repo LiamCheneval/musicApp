@@ -11,9 +11,7 @@
 </head>
 <body>
 <main>
-    <h1>Music App</h1>
-    <h2>Songs</h2>
-    <p style="text-decoration: underline">These songs are fetched from <a href="/api/songs">'/api/songs'</a>.</p>
+    <h2>All Musics</h2>
     <div id="songs">
         <!-- Fetched songs appear here! !-->
     </div>
@@ -44,7 +42,7 @@
             <div class="small-action-btn" id="play-pause-btn">
                 <i class="ph-fill ph-pause current-play-pause-icon"></i>
             </div>
-            <div class="small-action-btn">
+            <div class="small-action-btn" id="skip-forward-btn">
                 <i class="ph-fill ph-skip-forward"></i>
             </div>
         </div>
@@ -59,6 +57,10 @@
     <div class="more">
 
     </div>
+</div>
+
+<div id="context-menu" style="display: none">
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
