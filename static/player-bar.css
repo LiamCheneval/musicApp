@@ -11,13 +11,13 @@
     width: 100%;
 }
 
-.metadata {
+.player-bar .metadata {
     display: flex;
     gap: 32px;
     align-items: center;
 }
 
-.current-song {
+.player-bar .current-song {
     display: flex;
     gap: 16px;
     align-items: center;
@@ -26,34 +26,35 @@
 #current-song-cover {
     height: 64px;
     width: 64px;
-    object-fit: cover;
-    object-position: center;
+    background-color: gray;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     border-radius: 4px;
 }
 
-.titles {
+.player-bar .titles {
     display: flex;
     flex-direction: column;
     max-width: 250px;
 }
 
-.track-title {
+.player-bar .track-title {
     font-size: 16px;
     font-weight: bold;
 }
 
-.track-artist {
+.player-bar .track-artist {
     font-size: 12px;
     color: rgba(255, 255, 255, .5);
 }
 
-
-.song-actions {
+.player-bar .song-actions {
     display: flex;
     gap: 4px;
 }
 
-.small-action-btn {
+.player-bar .small-action-btn {
     padding: 8px;
     display: flex;
     align-items: center;
@@ -64,11 +65,11 @@
     cursor: pointer;
 }
 
-.small-action-btn:hover {
+.player-bar .small-action-btn:hover {
     background-color: rgba(255, 255, 255, .25);
 }
 
-.playback-controls {
+.player-bar .playback-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -80,23 +81,23 @@
     transform: translateX(-50%) translateY(-50%);
 }
 
-.playback-controls .buttons {
+.player-bar .playback-controls .buttons {
     display: flex;
     gap: 4px;
 }
 
-.playback-controls .seek-bar {
+.player-bar .playback-controls .seek-bar {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.playback-controls .seek-bar>p{
+.player-bar .playback-controls .seek-bar > p {
     font-size: 10px;
     color: rgba(255, 255, 255, .5);
 }
 
-.playback-controls .seek-bar .progress-bar {
+.player-bar .playback-controls .seek-bar .progress-bar {
     background-color: rgba(255, 255, 255, .25);
     border-radius: 90px;
     width: 490px;
@@ -104,9 +105,21 @@
     overflow: hidden;
 }
 
-.progress-bar>div{
+.player-bar .progress-bar > div {
     width: 0%;
     background-color: var(--acccent);
     height: 100%;
     border-radius: 0 90px 90px 0;
+}
+
+.mobile .song-actions, .mobile .playback-controls .buttons {
+    display: none;
+}
+
+.mobile .playback-controls {
+    position: relative;
+}
+
+.mobile .player-bar {
+    flex-direction: column;
 }

@@ -26,14 +26,15 @@ controlBarElements.currentPlayPauseIcons = document.querySelectorAll(".current-p
 axios.get('/api/songs').then((response) => {
     let musics = response.data;
 
-    playMusic(musics[0].uid)
-
     // make everything song appear in its own html element.
     musics.map((music) => {
         document.getElementById("songs").innerHTML += `
-            <div class="song" onclick="playMusic('${music.uid}')">
+            <div class="song" onclick="playMusic('${music.uid}')" class="playing-${music.uid}">
                 <img src="/static/album_covers/${music.album.uid}.png" alt="cover">
-                <p id="${music.uid}">${music.title} - ${music.artist.name}</p>
+                <div class="metadata">
+                    <p class="title">${music.title}</p>
+                    <p class="artist">${music.artist.name}</p>
+                </div>
             </div>`;
     });
 });
@@ -46,16 +47,18 @@ async function getMusicInfos(musicUid) {
 
 
 async function playMusic(musicUid) {
-    let musicInfos = await getMusicInfos(musicUid);
-    currentlyPlaying = musicInfos;
-    controlBarElements.currentSongCover.src = `/static/album_covers/${musicInfos.album.uid}.png`;
-    controlBarElements.currentSongArtist.innerText = musicInfos.artist.name;
-    controlBarElements.currentSongTitle.innerText = musicInfos.title;
     controlBarElements.playerBar.style.display = null
 
+    controlBarElements.currentSongCover.style.backgroundImage = null;
+    controlBarElements.currentSongTitle.innerText = "Loading...";
+    controlBarElements.currentSongArtist.innerText = null;
     audioElement.src = `/static/audio_files/${musicUid}.mp3`;
-    await audioElement.load()
     await audioElement.play()
+    let musicInfos = await getMusicInfos(musicUid);
+    currentlyPlaying = musicInfos;
+    controlBarElements.currentSongCover.style.backgroundImage = `url('/static/album_covers/${musicInfos.album.uid}.png')`;
+    controlBarElements.currentSongArtist.innerText = musicInfos.artist.name;
+    controlBarElements.currentSongTitle.innerText = musicInfos.title;
 
     if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -97,6 +100,10 @@ audioElement.addEventListener("timeupdate", () => {
     controlBarElements.progressTotalTime.innerText = secondsToTimeDisplay(audioElement.duration); // NOTE: We might not need to actually update it all the time
 });
 
+audioElement.addEventListener("loadeddata", ()=>{
+    // use audioElement.buffered.end(0) to get the loaded part of a track
+});
+
 
 controlBarElements.seekBar.addEventListener("click", (event) => {
     let boundingClientRect = controlBarElements.seekBar.getBoundingClientRect();
@@ -126,8 +133,6 @@ controlBarElements.skipBackButton.addEventListener("click", ()=>{
 function handleAudioPlayPause() {
     // Switches icons in all play/pause button icons
     controlBarElements.currentPlayPauseIcons.forEach((currentPlayPauseIcon) => {
-        console.log(currentPlayPauseIcon.classList);
-
         if (audioElement.paused && currentPlayPauseIcon.classList.contains("ph-pause")) {
             currentPlayPauseIcon.classList.remove("ph-pause");
             currentPlayPauseIcon.classList.add("ph-play");

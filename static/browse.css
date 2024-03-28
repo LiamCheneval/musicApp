@@ -17,25 +17,37 @@ main{
     padding: 16px;
 }
 #songs{
-    display: inline-flex;
-    flex-direction: column;
+    display: flex;
     gap: 4px;
     width: 100%;
     flex-wrap: wrap;
 }
 .song{
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    width: fit-content;
     gap: 8px;
-    width: 100%;
-    text-align: center;
     border-radius: 16px;
     padding: 8px;
-    background-color: rgba(0, 0, 0, .1);
     cursor: pointer;
+    transition: background-color .25s;
+}
+.song:hover{
+    background-color: rgba(0, 0, 0, .1);
+}
+.song .title{
+    font-size: 12px;
+    font-weight: bold;
+}
+.song .artist{
+    font-size: 10px;
+    color: rgba(0, 0, 0, .5);
+}
+.song p{
+    width: 128px;
 }
 .song img{
     border-radius: 8px;
-    height: 64px;
-    width: 64px;
+    height: 128px;
+    width: 128px;
 }
