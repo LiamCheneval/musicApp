@@ -107,7 +107,7 @@
 
 .player-bar .progress-bar > div {
     width: 0%;
-    background-color: var(--acccent);
+    background-color: var(--accent);
     height: 100%;
     border-radius: 0 90px 90px 0;
 }

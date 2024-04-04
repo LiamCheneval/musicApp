@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, make_response, abor
 from data_manager import *
 import json
 
-app = Flask(__name__, static_folder='./static')
+app = Flask(__name__, static_folder='./static', template_folder="./templates")
 
 
 @app.route('/')
@@ -22,8 +22,33 @@ def browser_page():
 
 @app.route('/api/songs')
 def api_songs():
-    songs = get_songs()
+    token = request.values["token"]
+    songs = get_songs(token)
+    print(json.dumps(songs, indent="    "))
     return json.dumps(songs)
+
+
+@app.route('/api/like_music', methods=['POST'])
+def api_like_song():
+    music_uid = request.values["music_uid"]
+    token = request.values["token"]
+    add_liked_title_from_token(token, music_uid)
+    return "OK"
+
+
+@app.route('/api/dislike_music', methods=['DELETE'])
+def api_dislike_song():
+    music_uid = request.values["music_uid"]
+    token = request.values["token"]
+    remove_liked_title_from_token(token, music_uid)
+    return "OK"
+
+
+@app.route('/api/liked_titles', methods=['GET'])
+def api_liked_songs():
+    token = request.values["token"]
+    liked_titles = get_liked_titles_from_token(token)
+    return json.dumps(liked_titles)
 
 
 @app.route('/api/song')

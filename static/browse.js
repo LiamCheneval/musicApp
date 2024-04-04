@@ -1,8 +1,14 @@
+let colorThief = new ColorThief();
+
 // get songs from the endpoint
 let audioElement = new Audio();
 
-let currentlyPlaying = 0
-let playQueue = []
+let sessionToken = document.cookie.split("; ")
+    .find((row) => row.startsWith("token="))
+    ?.split("=")[1];
+
+let currentlyPlaying = 0;
+let playQueue = [];
 
 
 let controlBarElements = {};
@@ -24,53 +30,285 @@ controlBarElements.skipForwardButton = document.getElementById("skip-forward-btn
 controlBarElements.currentPlayPauseIcons = document.querySelectorAll(".current-play-pause-icon");
 
 
-axios.get('/api/songs').then((response) => {
+let cache = [];
+
+
+class Artist {
+    #uid;
+    #name;
+
+    constructor({uid, name}) {
+        this.#uid = uid;
+        this.#name = name;
+    }
+
+    getName() {
+        return this.#name;
+    }
+}
+
+class Album {
+    #uid;
+    #title;
+    #artist;
+    #cover;
+
+    constructor({uid, title, artist}) {
+        this.#uid = uid;
+        this.#title = title;
+        this.#artist = artist;
+        this.#cover = `/static/album_covers/${this.#uid}.png`;
+    }
+
+    getCover() {
+        return this.#cover;
+    }
+
+    getTitle() {
+        return this.#title;
+    }
+}
+
+class Music {
+    #uid;
+    #title;
+    #track_n;
+    #liked;
+
+    constructor({uid, title, artist, album, track_n, liked}) {
+        this.#uid = uid;
+        this.#title = title;
+        this.artist = artist;
+        this.album = album;
+        this.#track_n = track_n;
+        this.#liked = liked;
+    }
+
+    like() {
+        likeSong(this.#uid);
+        this.#liked = true;
+        document.querySelectorAll(`[aria-label="${this.#uid}"]`).forEach((elem) => {
+            elem.dataset.liked = "true";
+            console.log("like.");
+        });
+    }
+
+    dislike() {
+        dislikeSong(this.#uid);
+        this.#liked = false;
+        document.querySelectorAll(`[aria-label="${this.#uid}"]`).forEach((elem) => {
+            elem.dataset.liked = "false";
+        });
+    }
+
+    getUid() {
+        return this.#uid;
+    }
+
+    getFile() {
+        return `/static/audio_files/${this.#uid}.mp3`;
+    }
+
+    getTitle() {
+        return this.#title;
+    }
+
+    generateCardHtml() {
+        return `
+            <button class="song" onclick="playMusic('${this.#uid}')" aria-label="${this.#uid}" data-liked="${this.#liked}">
+                <img src="${this.album.getCover()}" alt="cover">
+                <div class="metadata">
+                    <p class="title">${this.#title}</p>
+                    <p class="artist">${this.artist.getName()}</p>
+                </div>
+            </button>
+        `;
+    }
+
+    generateRowHtml() {
+        return `
+            <button class="row-song" onclick="playMusic('${this.#uid}')" aria-label="${this.#uid}" data-liked="${this.#liked}">
+                <img src="${this.album.getCover()}" alt="cover">
+                <div class="metadata">
+                    <p class="title">${this.#title}</p>
+                    <p class="artist">${this.artist.getName()}</p>
+                </div>
+            </button>
+        `;
+    }
+}
+
+class HomeScreenCategory {
+    #name
+    #musics = []
+
+    constructor({name, musics}) {
+        this.#name = name;
+        this.#musics = musics;
+    }
+
+    setName(newName) {
+        this.#name = newName;
+    }
+
+    setMusics(newMusicsArray) {
+        this.#musics = newMusicsArray;
+    }
+
+    addMusic(newMusic) {
+        this.#musics.push(newMusic);
+    }
+
+    getMusics() {
+        return this.#musics;
+    }
+
+    getName() {
+        return this.#name;
+    }
+
+    generateHtml() {
+        return "";
+    }
+}
+
+
+function populateHomeScreen() {
+
+}
+
+function mergeCache(newCache) {
+    newCache.forEach((music) => {
+        cache[music.getUid()] = music;
+    });
+    return cache;
+}
+
+
+let homeScreenSongs = [];
+axios.get(`/api/songs?token=${sessionToken}`).then((response) => {
     let musics = response.data;
 
     // make everything song appear in its own html element.
-    musics.map((music) => {
-        document.getElementById("songs").innerHTML += `
-            <div class="song" onclick="playMusic('${music.uid}')" aria-label="${music.uid}">
-                <img src="/static/album_covers/${music.album.uid}.png" alt="cover">
-                <div class="metadata">
-                    <p class="title">${music.title}</p>
-                    <p class="artist">${music.artist.name}</p>
-                </div>
-            </div>`;
+    let newCache = musics.map((music) => {
+        console.log(music);
+        let artist = new Artist(music.artist);
+        let album = new Album({
+            ...music.album,
+            artist,
+        });
+        let musicObj = new Music({
+            ...music,
+            album,
+            artist,
+        });
+        document.getElementById("songs").innerHTML += musicObj.generateCardHtml();
+        return musicObj;
     });
+    mergeCache(newCache);
+    updateContextMenuEvents();
+});
 
-    document.querySelectorAll(".song").forEach((songElem) => {
+function loadLikedTitles() {
+    document.getElementById("liked-titles").innerHTML = "";
+    axios.get('/api/liked_titles?token=' + sessionToken).then((response) => {
+        let musics = response.data;
+
+        // make everything song appear in its own html element.
+        let newCache = musics.map((music) => {
+            let artist = new Artist(music.artist);
+            let album = new Album({
+                ...music.album,
+                artist,
+            });
+            let musicObj = new Music({
+                ...music,
+                album,
+                artist,
+            });
+            document.getElementById("liked-titles").innerHTML += musicObj.generateRowHtml();
+            return musicObj;
+        });
+        mergeCache(newCache);
+    });
+    updateContextMenuEvents()
+}
+
+loadLikedTitles();
+
+function updateContextMenuEvents() {
+    document.querySelectorAll(".row-song, .song").forEach((songElem) => {
         songElem.addEventListener("contextmenu", (e) => {
-            showContextMenu(songElem.ariaLabel, e.clientX, e.clientY);
+            showContextMenu(songElem.ariaLabel, e.clientX, e.clientY, songElem.dataset.liked);
             e.preventDefault();
         });
     });
-});
+}
 
 
 let contextMenu = document.getElementById("context-menu");
-function showContextMenu(songUid, clientX, clientY){
+
+function showContextMenu(songUid, clientX, clientY, liked) {
     contextMenu.style.display = null;
     contextMenu.style.left = clientX + "px";
     contextMenu.style.top = clientY + "px";
     contextMenu.innerHTML = `
-        <button onclick="playMusic('${songUid}')">Play now</button>
-        <button onclick="addMusicToQueue('${songUid}')">Add to play queue</button>
+        <button onclick="playMusic('${songUid}')"><i class="ph ph-play"></i>Play now</button>
+        <button onclick="addMusicToQueue('${songUid}')"><i class="ph ph-list-plus"></i>Add to play queue</button>
     `;
+    if (liked === "false") {
+        contextMenu.innerHTML += `<button onclick="cache['${songUid}'].like()"><i class="ph ph-heart"></i>Like song</button>`;
+    } else {
+        contextMenu.innerHTML += `<button onclick="cache['${songUid}'].dislike()"><i class="ph ph-heart-break"></i>Dislike song</button>`;
+    }
 }
+
 function hideContextMenu() {
     contextMenu.innerHTML = "";
     contextMenu.style.display = "none";
 }
 
-document.addEventListener("click", ()=>{
+
+function likeSong(songUid) {
+    axios.post(`/api/like_music?token=${sessionToken}&music_uid=${songUid}`).then((result) => {
+        let data = result.data;
+        console.log("Song liked:", songUid, "\n", data);
+        loadLikedTitles();
+    });
+}
+
+function dislikeSong(songUid) {
+    axios.delete(`/api/dislike_music?token=${sessionToken}&music_uid=${songUid}`).then((result) => {
+        let data = result.data;
+        console.log("Song disliked:", songUid, "\n", data);
+        loadLikedTitles();
+    });
+}
+
+document.addEventListener("click", () => {
     hideContextMenu();
 });
 
 
 async function getMusicInfos(musicUid) {
-    let response = await axios.get("/api/song?uid=" + musicUid);
-    return await response.data;
+    let musicObj;
+    if (!musicUid in cache) {
+        let response = await axios.get("/api/song?uid=" + musicUid);
+        let music = await response.data;
+        let artist = new Artist(music.artist);
+        let album = new Album({
+            ...music.album,
+            artist,
+        });
+        musicObj = new Music({
+            ...music,
+            album,
+            artist,
+        });
+    } else {
+        musicObj = cache[musicUid];
+    }
+    return musicObj;
 }
 
 
@@ -99,21 +337,25 @@ async function playInQueue(skipBack, trackNb) {
     controlBarElements.currentSongCover.style.backgroundImage = null;
     controlBarElements.currentSongTitle.innerText = "Loading...";
     controlBarElements.currentSongArtist.innerText = null;
-    audioElement.src = `/static/audio_files/${currentMusic.uid}.mp3`;
+    audioElement.src = currentMusic.getFile();
     await audioElement.load()
     await audioElement.play()
-    controlBarElements.currentSongCover.style.backgroundImage = `url('/static/album_covers/${currentMusic.album.uid}.png')`;
-    controlBarElements.currentSongArtist.innerText = currentMusic.artist.name;
-    controlBarElements.currentSongTitle.innerText = currentMusic.title;
+    controlBarElements.currentSongCover.style.backgroundImage = `url('${currentMusic.album.getCover()}')`;
+    controlBarElements.currentSongArtist.innerText = currentMusic.artist.getName();
+    controlBarElements.currentSongTitle.innerText = currentMusic.getTitle();
+    document.getElementById("color-thief").src = currentMusic.album.getCover();
+    let color = colorThief.getColor(document.getElementById("color-thief"));
+    document.documentElement.style.setProperty('--accent', `rgb(${color[0]}, ${color[1]}, ${color[2]})`, 'important');
 
+    // From MDN
     if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: currentMusic.title,
-            artist: currentMusic.artist.name,
-            album: currentMusic.album.title,
+            title: currentMusic.getTitle(),
+            artist: currentMusic.artist.getName(),
+            album: currentMusic.album.getTitle(),
             artwork: [
                 {
-                    src: `/static/album_covers/${currentMusic.album.uid}.png`,
+                    src: currentMusic.album.getCover(),
                     sizes: "128x128",
                     type: "image/png",
                 },
@@ -184,7 +426,7 @@ controlBarElements.skipBackButton.addEventListener("click", () => {
     }
     playInQueue(true);
 });
-controlBarElements.skipForwardButton.addEventListener("click", ()=>{
+controlBarElements.skipForwardButton.addEventListener("click", () => {
     playInQueue();
 });
 
@@ -207,7 +449,7 @@ function handleAudioPlayPause() {
 audioElement.addEventListener("play", handleAudioPlayPause);
 audioElement.addEventListener("pause", handleAudioPlayPause);
 
-
+// From MDN
 if ("mediaSession" in navigator) {
     navigator.mediaSession.setActionHandler("play", () => {
         audioElement.play()
@@ -219,9 +461,13 @@ if ("mediaSession" in navigator) {
         audioElement.pause()
     });
     navigator.mediaSession.setActionHandler("previoustrack", () => {
-        /* Code excerpted. */
+        if (audioElement.currentTime > 3) {
+            audioElement.currentTime = 0
+            return
+        }
+        playInQueue(true);
     });
     navigator.mediaSession.setActionHandler("nexttrack", () => {
-        /* Code excerpted. */
+        playInQueue()
     });
 }

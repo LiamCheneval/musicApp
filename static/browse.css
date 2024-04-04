@@ -3,7 +3,8 @@
     margin: 0;
     padding: 0;
 }
-body{
+
+body {
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
@@ -11,47 +12,132 @@ body{
     position: fixed;
     inset: 0;
 }
-main{
+
+main {
     flex: 1 0 0;
     overflow-y: scroll;
-    padding: 16px;
+    display: flex;
 }
-#songs{
+
+#page-home{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+#page-liked{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+main > .page {
+    flex: 1 0 0;
+    padding: 16px;
+    display: none !important;
+}
+main > .page.opened{
+    display: inherit !important;
+}
+
+nav {
+    width: 250px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+nav button {
+    padding: 12px;
+    background: none;
+    border: none;
+    font-size: 14px;
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color .25s, box-shadow .25s;
+    cursor: pointer;
+}
+
+nav button:hover {
+    background-color: rgba(0, 0, 0, .1);
+}
+
+nav button.selected {
+    background-color: rgba(0, 0, 0, .1);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+}
+
+nav button i {
+    font-size: 24px;
+}
+
+#songs {
     display: flex;
     gap: 4px;
     width: 100%;
     flex-wrap: wrap;
 }
-.song{
+
+.song {
+    text-align: left;
+    border: none;
+    background: none;
     display: flex;
     flex-direction: column;
     width: fit-content;
+    gap: 8px;
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    transition: background-color .25s;
+}
+
+.row-song {
+    text-align: left;
+    border: none;
+    background: none;
+    display: flex;
+    width: 100%;
     gap: 8px;
     border-radius: 16px;
     padding: 8px;
     cursor: pointer;
     transition: background-color .25s;
 }
-.song:hover{
+
+.song:hover, .row-song:hover {
     background-color: rgba(0, 0, 0, .1);
 }
-.song .title{
+
+.song .title {
     font-size: 12px;
     font-weight: bold;
 }
-.song .artist{
+
+.song .artist {
     font-size: 10px;
     color: rgba(0, 0, 0, .5);
 }
-.song p{
+
+.song p {
     width: 128px;
 }
-.song img{
+
+.song img {
     border-radius: 8px;
     height: 128px;
     width: 128px;
 }
-#context-menu{
+.row-song img {
+    border-radius: 8px;
+    height: 48px;
+    width: 48px;
+}
+
+#context-menu {
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -59,13 +145,19 @@ main{
     border-radius: 8px;
     padding: 4px;
 }
-#context-menu button{
+
+#context-menu button {
     background: none;
     text-align: left;
     padding: 8px;
     border-radius: 4px;
     border: none;
+
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
-#context-menu button:hover{
+
+#context-menu button:hover {
     background-color: rgba(0, 0, 0, .1);
 }
