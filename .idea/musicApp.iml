@@ -9,6 +9,7 @@
     <orderEntry type="library" name="@phosphor-icons" level="application" />
     <orderEntry type="library" name="vibrant.js" level="application" />
     <orderEntry type="library" name="color-thief" level="application" />
+    <orderEntry type="library" name="@phosphor-icons" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

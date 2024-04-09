@@ -32,6 +32,8 @@ main {
 
 main > .page {
     flex: 1 0 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
     padding: 16px;
     display: none !important;
 }
@@ -74,11 +76,17 @@ nav button i {
     font-size: 24px;
 }
 
+.songs-container{
+    overflow-x: scroll;
+    width: 100%;
+}
+.songs-row{
+    display: flex;
+    gap: 4px;
+}
 #songs {
     display: flex;
     gap: 4px;
-    width: 100%;
-    flex-wrap: wrap;
 }
 
 .song {
@@ -160,4 +168,10 @@ nav button i {
 
 #context-menu button:hover {
     background-color: rgba(0, 0, 0, .1);
+}
+
+
+
+#like-action.liked>i{
+    color: var(--accent);
 }

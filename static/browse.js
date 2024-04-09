@@ -29,6 +29,9 @@ controlBarElements.skipBackButton = document.getElementById("skip-back-btn");
 controlBarElements.skipForwardButton = document.getElementById("skip-forward-btn");
 controlBarElements.currentPlayPauseIcons = document.querySelectorAll(".current-play-pause-icon");
 
+controlBarElements.likeAction = document.getElementById("like-action");
+controlBarElements.likeActionIcon = document.querySelector("#like-action>.ph-heart");
+
 
 let cache = [];
 
@@ -89,7 +92,6 @@ class Music {
         this.#liked = true;
         document.querySelectorAll(`[aria-label="${this.#uid}"]`).forEach((elem) => {
             elem.dataset.liked = "true";
-            console.log("like.");
         });
     }
 
@@ -99,6 +101,10 @@ class Music {
         document.querySelectorAll(`[aria-label="${this.#uid}"]`).forEach((elem) => {
             elem.dataset.liked = "false";
         });
+    }
+
+    isLiked(){
+        return this.#liked;
     }
 
     getUid() {
@@ -186,12 +192,13 @@ function mergeCache(newCache) {
 
 
 let homeScreenSongs = [];
+document.getElementById("songs").innerHTML = "<p>Loading...</p>";
 axios.get(`/api/songs?token=${sessionToken}`).then((response) => {
     let musics = response.data;
 
     // make everything song appear in its own html element.
+    document.getElementById("songs").innerHTML = "";
     let newCache = musics.map((music) => {
-        console.log(music);
         let artist = new Artist(music.artist);
         let album = new Album({
             ...music.album,
@@ -210,11 +217,14 @@ axios.get(`/api/songs?token=${sessionToken}`).then((response) => {
 });
 
 function loadLikedTitles() {
-    document.getElementById("liked-titles").innerHTML = "";
+    document.getElementById("liked-titles").innerHTML = "<p>Loading...</p>";
+    document.getElementById("liked-songs").innerHTML = "<p>Loading...</p>";
     axios.get('/api/liked_titles?token=' + sessionToken).then((response) => {
         let musics = response.data;
 
         // make everything song appear in its own html element.
+        document.getElementById("liked-titles").innerHTML = "";
+        document.getElementById("liked-songs").innerHTML = "";
         let newCache = musics.map((music) => {
             let artist = new Artist(music.artist);
             let album = new Album({
@@ -227,11 +237,12 @@ function loadLikedTitles() {
                 artist,
             });
             document.getElementById("liked-titles").innerHTML += musicObj.generateRowHtml();
+            document.getElementById("liked-songs").innerHTML += musicObj.generateCardHtml();
             return musicObj;
         });
         mergeCache(newCache);
+        updateContextMenuEvents();
     });
-    updateContextMenuEvents()
 }
 
 loadLikedTitles();
@@ -343,6 +354,17 @@ async function playInQueue(skipBack, trackNb) {
     controlBarElements.currentSongCover.style.backgroundImage = `url('${currentMusic.album.getCover()}')`;
     controlBarElements.currentSongArtist.innerText = currentMusic.artist.getName();
     controlBarElements.currentSongTitle.innerText = currentMusic.getTitle();
+
+    if (currentMusic.isLiked()) {
+        controlBarElements.likeActionIcon.classList.remove("ph");
+        controlBarElements.likeActionIcon.classList.add("ph-fill");
+        controlBarElements.likeAction.classList.add("liked");
+    } else {
+        controlBarElements.likeActionIcon.classList.remove("ph-fill");
+        controlBarElements.likeActionIcon.classList.add("ph");
+        controlBarElements.likeAction.classList.remove("liked");
+    }
+
     document.getElementById("color-thief").src = currentMusic.album.getCover();
     let color = colorThief.getColor(document.getElementById("color-thief"));
     document.documentElement.style.setProperty('--accent', `rgb(${color[0]}, ${color[1]}, ${color[2]})`, 'important');
