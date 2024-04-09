@@ -3,17 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <title>Music App - Browse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="/static/theme.css">
     <link rel="stylesheet" href="/static/browse.css">
+    <link rel="stylesheet" href="/static/player-bar.css">
+    <link rel="icon" href="/static/favicon.svg" sizes="any" type="image/svg+xml">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
-    <h1>Music App</h1>
-    <h2>Songs</h2>
-    <p style="text-decoration: underline">These songs are fetched from <a href="/api/songs">'/api/songs'</a>.</p>
-    <div id="songs">
-        <!-- Fetched songs appear here! !-->
-    </div>
+<main>
+    <nav>
+        <button id="button-home" onclick="switchTab('home')" class="tab selected"><i class="ph-fill ph-house"></i> Home</button>
+        <button id="button-search" onclick="switchTab('search')" class="tab"><i class="ph-fill ph-magnifying-glass"></i> Search</button>
+        <button id="button-liked" onclick="switchTab('liked')" class="tab"><i class="ph-fill ph-heart"></i> Liked titles</button>
+    </nav>
+    <div class="page opened" id="page-home">
+        <h2>All Musics</h2>
+        <div class="songs-container">
+            <div id="songs" class="songs-row">
+                <!-- Fetched songs appear here! !-->
+            </div>
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/static/browse.js"></script>
+        <h2>Liked Titles</h2>
+        <div class="songs-container">
+            <div id="liked-songs" class="songs-row">
+                <!-- Fetched songs appear here! !-->
+            </div>
+        </div>
+    </div>
+    <div class="page" id="page-search" style="display: none">
+        <label>
+            Search
+            <input type="text">
+        </label>
+    </div>
+    <div class="page" id="page-liked" style="display: none">
+        <h2>Liked Titles</h2>
+        <div id="liked-titles">
+            <!-- Fetched songs appear here! !-->
+        </div>
+    </div>
+</main>
+<div class="player-bar" style="display: none">
+    <div class="metadata">
+        <div class="current-song">
+            <div id="current-song-cover"></div>
+            <div class="titles">
+                <p class="track-title" id="current-song-title">Better Be Alive</p>
+                <p class="track-artist" id="current-song-artist">IGO</p>
+            </div>
+        </div>
+        <div class="song-actions">
+            <div class="small-action-btn" id="like-action">
+                <i class="ph ph-heart"></i>
+            </div>
+            <!--<div class="small-action-btn">
+                <i class="ph ph-dots-three"></i>
+            </div>!-->
+        </div>
+    </div>
+    <div class="playback-controls">
+        <div class="buttons">
+            <div class="small-action-btn" id="skip-back-btn">
+                <i class="ph-fill ph-skip-back"></i>
+            </div>
+            <div class="small-action-btn" id="play-pause-btn">
+                <i class="ph-fill ph-pause current-play-pause-icon"></i>
+            </div>
+            <div class="small-action-btn" id="skip-forward-btn">
+                <i class="ph-fill ph-skip-forward"></i>
+            </div>
+        </div>
+        <div class="seek-bar">
+            <p class="timestamp" id="progress-time-left">-00:00</p>
+            <div class="progress-bar" id="seek-bar">
+                <div id="progress-bar"></div>
+            </div>
+            <p class="timestamp" id="progress-total-time">00:00</p>
+        </div>
+    </div>
+</div>
+
+<div id="context-menu" style="display: none">
+
+</div>
+
+<img src="" alt="" id="color-thief" style="display: none">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.min.js" integrity="sha512-r2yd2GP87iHAsf2K+ARvu01VtR7Bs04la0geDLbFlB/38AruUbA5qfmtXwXx6FZBQGJRogiPtEqtfk/fnQfaYA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/static/browse.js"></script>
+<script src="/static/tabManager.js"></script>
 </body>
 </html>
